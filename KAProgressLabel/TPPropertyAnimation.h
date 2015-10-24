@@ -50,20 +50,19 @@ typedef enum {
     TPPropertyAnimationTimingEaseInEaseOut
 } TPPropertyAnimationTiming;
 
-@interface TPPropertyAnimation : NSObject {
-    NSString *keyPath;
-    id target;
-    id delegate;
-    CGFloat duration;
-    CGFloat startDelay;
-    TPPropertyAnimationTiming timing;
-    TPPropertyAnimation *chainedAnimation;
-    id fromValue;
-    id toValue;
-    
-    @private
-    NSTimeInterval startTime;
-}
+@interface TPPropertyAnimation : NSObject
+
+@property (nonatomic, copy) NSString *keyPath;
+@property (nonatomic, strong) id target;
+@property (nonatomic, strong) id delegate;
+@property (nonatomic, assign) CGFloat duration;
+@property (nonatomic, assign) CGFloat startDelay;
+@property (nonatomic, assign) TPPropertyAnimationTiming timing;
+@property (nonatomic, strong) TPPropertyAnimation *chainedAnimation;
+@property (nonatomic, strong) id fromValue;
+@property (nonatomic, strong) id toValue;
+@property (nonatomic, copy) void(^completionHandler)(void);
+
 
 // Create a new animation
 + (TPPropertyAnimation*)propertyAnimationWithKeyPath:(NSString*)keyPath;
@@ -78,15 +77,6 @@ typedef enum {
 // Cancel the animation
 - (void)cancel;
 
-@property (nonatomic, retain) id delegate;
-@property (nonatomic, retain) id target;
-@property (nonatomic, readonly) NSString *keyPath;
-@property (nonatomic, assign) CGFloat duration;
-@property (nonatomic, assign) CGFloat startDelay;
-@property (nonatomic, retain) id fromValue;
-@property (nonatomic, retain) id toValue;
-@property (nonatomic, assign) TPPropertyAnimationTiming timing;
-@property (nonatomic, retain) TPPropertyAnimation *chainedAnimation;
 @end
 
 // Implement this to act as a delegate

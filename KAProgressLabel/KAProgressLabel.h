@@ -42,17 +42,21 @@ typedef void(^labelValueChangedCompletion)(KAProgressLabel *label);
 - (void)setStartDegree:(CGFloat)startDegree
                timing:(TPPropertyAnimationTiming)timing
              duration:(CGFloat)duration
-                delay:(CGFloat)delay;
+                delay:(CGFloat)delay
+            completion:(void(^)())completionHandler;
 
 - (void)setEndDegree:(CGFloat)endDegree
              timing:(TPPropertyAnimationTiming)timing
            duration:(CGFloat)duration
-              delay:(CGFloat)delay;
+              delay:(CGFloat)delay
+          completion:(void(^)())completionHandler;
 
 - (void)setProgress:(CGFloat)progress
             timing:(TPPropertyAnimationTiming)timing
           duration:(CGFloat)duration
-             delay:(CGFloat)delay;
+             delay:(CGFloat)delay
+         completion:(void(^)())completionHandler;
 
 - (void)stopAnimations;
+
 @end

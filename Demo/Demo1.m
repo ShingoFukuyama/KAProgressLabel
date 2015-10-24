@@ -89,8 +89,8 @@
 -(IBAction)selectAnimate:(id)sender {
     float rndValue =  arc4random() % 360;
     float rndValue2 =  arc4random() % 360;
-    [self.pLabel setStartDegree:rndValue timing:TPPropertyAnimationTimingEaseInEaseOut duration:1 delay:0];
-    [self.pLabel setEndDegree:rndValue2 timing:TPPropertyAnimationTimingEaseInEaseOut duration:1 delay:0];
+    [self.pLabel setStartDegree:rndValue timing:TPPropertyAnimationTimingEaseInEaseOut duration:1 delay:0 completion:nil];
+    [self.pLabel setEndDegree:rndValue2 timing:TPPropertyAnimationTimingEaseInEaseOut duration:1 delay:0  completion:nil];
 }
 
 - (IBAction)selectStop:(id)sender{
