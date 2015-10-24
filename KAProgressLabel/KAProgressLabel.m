@@ -35,7 +35,7 @@
     [self removeObserver:self forKeyPath:@"startDegree"];
     [self removeObserver:self forKeyPath:@"endDegree"];
     [self removeObserver:self forKeyPath:@"roundedCornersWidth"];
-
+    
     [self.startLabel removeObserver:self forKeyPath:@"text"];
     [self.endLabel removeObserver:self forKeyPath:@"text"];
 }
@@ -62,16 +62,19 @@
 {
     // We need a square view
     // For now, we resize  and center the view
-    if (self.frame.size.width != self.frame.size.height){
+    CGFloat width = CGRectGetWidth(self.frame);
+    CGFloat height = CGRectGetHeight(self.frame);
+    if (width != height) {
         CGRect frame = self.frame;
-        float delta = ABS(self.frame.size.width-self.frame.size.height)/2;
-        if (self.frame.size.width > self.frame.size.height){
+        float delta = ABS(width - height) * 0.5f;
+        if (width > height) {
             frame.origin.x += delta;
-            frame.size.width = self.frame.size.height;
+            frame.size.width = height;
             self.frame = frame;
-        }else{
+        }
+        else {
             frame.origin.y += delta;
-            frame.size.height = self.frame.size.width;
+            frame.size.height = width;
             self.frame = frame;
         }
     }
@@ -144,7 +147,7 @@
     
     if ([keyPath isEqualToString:@"startDegree"]
         || [keyPath isEqualToString:@"endDegree"]) {
-
+        
         __weak typeof(self) weakSelf = self;
         if (self.labelVCBlock) {
             self.labelVCBlock(weakSelf);
@@ -161,17 +164,17 @@
 
 - (CGFloat)startDegree
 {
-    return _startDegree +90;
+    return _startDegree + 90;
 }
 
 - (CGFloat)endDegree
 {
-    return _endDegree +90;
+    return _endDegree + 90;
 }
 
 - (CGFloat)progress
 {
-    return self.endDegree/360;
+    return self.endDegree / 360;
 }
 
 #pragma mark - Setters
@@ -199,7 +202,7 @@
 - (void)setStartDegree:(CGFloat)startDegree timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay completion:(void(^)())completionHandler
 {
     TPPropertyAnimation *animation = [TPPropertyAnimation propertyAnimationWithKeyPath:@"startDegree"];
-    animation.fromValue = @(_startDegree+90);
+    animation.fromValue = @(_startDegree + 90);
     animation.toValue = @(startDegree);
     animation.duration = duration;
     animation.startDelay = delay;
@@ -213,7 +216,7 @@
 - (void)setEndDegree:(CGFloat)endDegree timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay completion:(void(^)())completionHandler
 {
     TPPropertyAnimation *animation = [TPPropertyAnimation propertyAnimationWithKeyPath:@"endDegree"];
-    animation.fromValue = @(_endDegree+90);
+    animation.fromValue = @(_endDegree + 90);
     animation.toValue = @(endDegree);
     animation.duration = duration;
     animation.startDelay = delay;
@@ -272,8 +275,8 @@
     float x = touchLocation.x - CGRectGetWidth(self.frame) * 0.5f;
     float y = touchLocation.y - CGRectGetHeight(self.frame) * 0.5f;
     int angle = KARadiansToDegrees(atan(y / x));
-    angle += (x>=0)?  90 : 270;
-
+    angle += (x >= 0) ? 90 : 270;
+    
     // Interact
     if (!self.isStartDegreeUserInteractive) { // Only End
         [self setEndDegree:angle];
@@ -282,9 +285,9 @@
         [self setStartDegree:angle];
     }
     else { // All,hence move nearest knob
-        float startDelta = sqrt(pow(self.startLabel.center.x-touchLocation.x,2) + pow(self.startLabel.center.y- touchLocation.y,2));
-        float endDelta = sqrt(pow(self.endLabel.center.x-touchLocation.x,2) + pow(self.endLabel.center.y - touchLocation.y,2));
-        if (startDelta<endDelta) {
+        float startDelta = sqrt(pow(self.startLabel.center.x - touchLocation.x, 2) + pow(self.startLabel.center.y - touchLocation.y, 2));
+        float endDelta = sqrt(pow(self.endLabel.center.x - touchLocation.x, 2) + pow(self.endLabel.center.y - touchLocation.y, 2));
+        if (startDelta < endDelta) {
             [self setStartDegree:angle];
         }
         else {
@@ -298,9 +301,9 @@
 - (void)drawProgressLabelCircleInRect:(CGRect)rect
 {
     CGRect circleRect= [self rectForCircle:rect];
-    CGFloat archXPos = rect.size.width/2 + rect.origin.x;
-    CGFloat archYPos = rect.size.height/2 + rect.origin.y;
-    CGFloat archRadius = (circleRect.size.width) / 2.0;
+    CGFloat archXPos = CGRectGetWidth(rect) * 0.5f + CGRectGetMinX(rect);
+    CGFloat archYPos = CGRectGetHeight(rect) * 0.5f + CGRectGetMinY(rect);
+    CGFloat archRadius = (circleRect.size.width) * 0.5f;
     
     CGFloat trackStartAngle = KADegreesToRadians(0);
     CGFloat trackEndAngle = KADegreesToRadians(360);
@@ -342,36 +345,36 @@
 
 #pragma mark - Helpers
 
-- (CGRect) rectForDegree:(float) degree andRect:(CGRect) rect 
+- (CGRect) rectForDegree:(float) degree andRect:(CGRect) rect
 {
-    float x = [self xPosRoundForAngle:degree andRect:rect] - _roundedCornersWidth/2;
-    float y = [self yPosRoundForAngle:degree andRect:rect] - _roundedCornersWidth/2;
+    float x = [self xPosRoundForAngle:degree andRect:rect] - _roundedCornersWidth * 0.5f;
+    float y = [self yPosRoundForAngle:degree andRect:rect] - _roundedCornersWidth * 0.5f;
     return CGRectMake(x, y, _roundedCornersWidth, _roundedCornersWidth);
 }
 
 - (float) xPosRoundForAngle:(float) degree andRect:(CGRect) rect
 {
-    return cosf(KADegreesToRadians(degree))* [self radius]
+    return cosf(KADegreesToRadians(degree)) * [self radius]
     - cosf(KADegreesToRadians(degree)) * [self borderDelta]
-    + rect.size.width/2;
+    + rect.size.width * 0.5f;
 }
 
 - (float) yPosRoundForAngle:(float) degree andRect:(CGRect) rect
 {
-    return sinf(KADegreesToRadians(degree))* [self radius]
+    return sinf(KADegreesToRadians(degree)) * [self radius]
     - sinf(KADegreesToRadians(degree)) * [self borderDelta]
-    + rect.size.height/2;
+    + rect.size.height * 0.5f;
 }
 
 - (float) borderDelta
 {
-    return MAX(MAX(_trackWidth,_progressWidth),_roundedCornersWidth)/2;
+    return MAX(MAX(_trackWidth, _progressWidth), _roundedCornersWidth) * 0.5f;
 }
 
 - (CGRect)rectForCircle:(CGRect)rect
 {
-    CGFloat minDim = MIN(self.bounds.size.width, self.bounds.size.height);
-    CGFloat circleRadius = (minDim / 2) - [self borderDelta];
+    CGFloat minDim = MIN(CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds));
+    CGFloat circleRadius = (minDim * 0.5f) - [self borderDelta];
     CGPoint circleCenter = CGPointMake(CGRectGetMidX(rect), CGRectGetMidY(rect));
     return CGRectMake(circleCenter.x - circleRadius, circleCenter.y - circleRadius, 2 * circleRadius, 2 * circleRadius);
 }
