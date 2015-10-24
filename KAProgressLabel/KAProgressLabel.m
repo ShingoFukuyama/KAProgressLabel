@@ -86,6 +86,11 @@
     self.trackColor             = [UIColor lightGrayColor];
     self.progressColor          = [UIColor blackColor];
     
+    self.centerLabel = [[UILabel  alloc] initWithFrame:CGRectZero];
+    self.centerLabel.textAlignment = NSTextAlignmentCenter;
+    self.centerLabel.frame = CGRectMake(0, 0, 60.0, 60.0);
+    self.centerLabel.clipsToBounds = YES;
+    
     self.startLabel = [[UILabel  alloc] initWithFrame:CGRectZero];
     self.startLabel.textAlignment = NSTextAlignmentCenter;
     self.startLabel.adjustsFontSizeToFitWidth = YES;
@@ -98,8 +103,10 @@
     self.endLabel.minimumScaleFactor = .1;
     self.endLabel.clipsToBounds = YES;
     
+    [self addSubview:self.centerLabel];
     [self addSubview:self.startLabel];
     [self addSubview:self.endLabel];
+    self.centerLabel.center = CGPointMake(CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds));
     
     // Logic
     self.startDegree        = 0;
@@ -135,10 +142,10 @@
 {
     [self setNeedsDisplay] ;
     
-    if ([keyPath isEqualToString:@"startDegree"] ||
-       [keyPath isEqualToString:@"endDegree"]){
-        
-        KAProgressLabel *__unsafe_unretained weakSelf = self;
+    if ([keyPath isEqualToString:@"startDegree"]
+        || [keyPath isEqualToString:@"endDegree"]) {
+
+        __weak typeof(self) weakSelf = self;
         if (self.labelVCBlock) {
             self.labelVCBlock(weakSelf);
         }
@@ -149,7 +156,7 @@
 
 - (float) radius
 {
-    return MIN(self.frame.size.width,self.frame.size.height)/2;
+    return MIN(CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)) * 0.5f;
 }
 
 - (CGFloat)startDegree
@@ -181,7 +188,7 @@
 
 - (void)setProgress:(CGFloat)progress
 {
-    if (self.startDegree != 0){
+    if (self.startDegree != 0) {
         [self setStartDegree:0];
     }
     [self setEndDegree:progress*360];
@@ -235,7 +242,7 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
     UIBezierPath *p = [UIBezierPath bezierPathWithOvalInRect:self.bounds];
-    return  ([p containsPoint:point])? self : nil;
+    return  ([p containsPoint:point]) ? self : nil;
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -253,8 +260,8 @@
 - (void)moveBasedOnTouches:(NSSet *)touches withEvent:(UIEvent *)event
 {
     // No interaction enabled
-    if (!self.isStartDegreeUserInteractive &&
-       !self.isEndDegreeUserInteractive){
+    if (!self.isStartDegreeUserInteractive
+        && !self.isEndDegreeUserInteractive) {
         return;
     }
     
@@ -262,27 +269,25 @@
     CGPoint touchLocation = [touch locationInView:self];
     
     // Coordinates to polar
-    float x = touchLocation.x - self.frame.size.width/2;
-    float y = touchLocation.y - self.frame.size.height/2;
-    int angle = KARadiansToDegrees(atan(y/x));
+    float x = touchLocation.x - CGRectGetWidth(self.frame) * 0.5f;
+    float y = touchLocation.y - CGRectGetHeight(self.frame) * 0.5f;
+    int angle = KARadiansToDegrees(atan(y / x));
     angle += (x>=0)?  90 : 270;
 
     // Interact
-    if (!self.isStartDegreeUserInteractive) // Only End
-    {
+    if (!self.isStartDegreeUserInteractive) { // Only End
         [self setEndDegree:angle];
     }
-    else if (!self.isEndDegreeUserInteractive) // Only Start
-    {
+    else if (!self.isEndDegreeUserInteractive) { // Only Start
         [self setStartDegree:angle];
     }
-    else // All,hence move nearest knob
-    {
+    else { // All,hence move nearest knob
         float startDelta = sqrt(pow(self.startLabel.center.x-touchLocation.x,2) + pow(self.startLabel.center.y- touchLocation.y,2));
         float endDelta = sqrt(pow(self.endLabel.center.x-touchLocation.x,2) + pow(self.endLabel.center.y - touchLocation.y,2));
-        if (startDelta<endDelta){
+        if (startDelta<endDelta) {
             [self setStartDegree:angle];
-        }else{
+        }
+        else {
             [self setEndDegree:angle];
         }
     }
@@ -322,7 +327,7 @@
     CGContextStrokePath(context);
     
     // Rounded corners
-    if (_roundedCornersWidth > 0){
+    if (_roundedCornersWidth > 0) {
         CGContextSetFillColorWithColor(context, self.progressColor.CGColor);
         CGContextAddEllipseInRect(context, [self rectForDegree:_startDegree andRect:rect]);
         CGContextAddEllipseInRect(context, [self rectForDegree:_endDegree andRect:rect]);

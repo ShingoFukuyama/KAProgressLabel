@@ -17,7 +17,7 @@ typedef void(^labelValueChangedCompletion)(KAProgressLabel *label);
 @property (nonatomic, copy) labelValueChangedCompletion labelVCBlock;
 
 // Style
-@property (nonatomic) CGFloat trackWidth; 
+@property (nonatomic) CGFloat trackWidth;
 @property (nonatomic) CGFloat progressWidth;
 @property (nonatomic) CGFloat roundedCornersWidth;
 @property (nonatomic, copy) UIColor * fillColor;
@@ -25,6 +25,7 @@ typedef void(^labelValueChangedCompletion)(KAProgressLabel *label);
 @property (nonatomic, copy) UIColor * progressColor;
 @property (nonatomic, strong) UILabel * startLabel;
 @property (nonatomic, strong) UILabel * endLabel;
+@property (nonatomic, strong) UILabel * centerLabel;
 
 // Logic
 @property (nonatomic) CGFloat startDegree;
